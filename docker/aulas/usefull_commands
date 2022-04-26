@@ -1,0 +1,21 @@
+- VOLUME:
+docker run -d --name nginx -p 8080:80 -v /home/leandro/development/fullcycle/docker/html/:/usr/share/nginx/html nginx
+docker run --rm -it -v $(pwd)/:/usr/src/app -p 3000:3000 node:15 bash
+
+- BUILD USING CUSTOM DOCKERFILE:
+docker build -t leandropaz/laravel:prod laravel -f laravel/Dockerfile.prod
+
+- CREATE DEFAULT (bridge) NETWORK
+docker network create laranet
+- RUN USING CUSTOM NETWORK
+docker run -d --network laranet --name nginx -p 8080:80 leandropaz/nginx:prod
+
+- PUSH TO REGISTRY
+docker push leandropaz/nginx:prod
+
+- REMOVE CONTAINERS:
+docker rm -f nginx
+docker rm $(docker ps -a -q) -f
+
+- DOCKER-COMPOSE
+docker-compose up -d --build
