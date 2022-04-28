@@ -7,14 +7,25 @@ services:
     container_name: app
     entrypoint: dockerize -wait tcp://db:3306 -timeout 20s node index.js
     networks:
-      - node-network
+      - desafio-network
     volumes:
       - ./node:/usr/src/app
     tty: true
     ports:
-      - "3000:3000"
+      - "8080:8080"
     depends_on:
       - db
+
+  nginx:
+    build:
+      context: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    networks:
+      - desafio-network
+    depends_on:
+      - app
 
   db:
     image: mysql:latest
@@ -24,13 +35,15 @@ services:
     tty: true
     volumes: 
       - ./mysql:/var/lib/mysql
+      - ./script:/docker-entrypoint-initdb.d # na primeira execução, o volume 'mysql' tem que estar vazio
+                                             #  conforme descrito em https://stackoverflow.com/a/39765233/9205969
     environment: 
-      - MYSQL_DATABASE=nodedb
+      - MYSQL_DATABASE=desafiodb
       - MYSQL_ROOT_PASSWORD=root
     networks: 
-      - node-network
+      - desafio-network
 
 networks: 
-  node-network:
+  desafio-network:
     driver: bridge
 
